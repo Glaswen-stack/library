@@ -1,6 +1,18 @@
 import json
 import os
 
+def load_data(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if isinstance(data, list):
+        return data
+    else:
+        return [data]
+
+def save_data(data, filename):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
 def buy_book(book_name, count, buy_price, sell_price, author_name, genre, language, year):
     transactions_data = {
         "book_name": book_name,
@@ -10,14 +22,12 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
     }
 
     if os.path.isfile("transactions.json"):
-        with open("transactions.json", "r", encoding="utf-8") as f:
-            transactions = json.load(f)
-            transactions.append(transactions_data)
-            with open("transactions.json", "w", encoding="utf-8") as f:
-                json.dump(transactions, f, ensure_ascii=False, indent=4)
+        transactions = load_data("transactions.json")
+        transactions.append(transactions_data)
+        save_data(transactions, "transactions.json")
     else:
-        with open("transactions.json", "w", encoding="utf-8") as f:
-            json.dump([transactions_data], f, ensure_ascii=False, indent=4)
+        save_data([transactions_data], "transactions.json")
+
     #РАБОТА С КНИГАМИ
     book_data = {
         "book_name": book_name,
@@ -30,54 +40,42 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
         "year": year,
     }
     if os.path.isfile("book.json"):
-        with open("book.json", "r", encoding="utf-8") as f:
-            books = json.load(f)
+        books = load_data("book.json")
         found = False
         for book in books:
             if book["book_name"] == book_name and book["author_name"] == author_name:
                 book["count"] += count
                 found = True
-                with open("book.json", "w", encoding="utf-8") as f:
-                    json.dump(books, f, ensure_ascii=False, indent=4)
+                save_data(books, "book.json")
                 break
         if not found:
-            with open("book.json", "r", encoding="utf-8") as f:
-                books = json.load(f)
+            load_data("book.json")
             books.append(book_data)
-            with open("book.json", "w", encoding="utf-8") as f:
-                json.dump(books, f, ensure_ascii=False, indent=4)
+            save_data(books, "book.json")
     else:
-        with open("book.json", "w", encoding="utf-8") as f:
-            json.dump([book_data], f, ensure_ascii=False, indent=4)
+        save_data([book_data], "book.json")
     #РАБОТА С АВТОРАМИ
     author_data = {
         "author_name": author_name,
     }
     if os.path.isfile("authors.json"):
-        with open("authors.json", "r", encoding="utf-8") as f:
-            authors = json.load(f)
+        authors = load_data("authors.json")
         found = False
         for author in authors:
             if author["author_name"] == author_name:
                 found = True
-                with open("authors.json", "w", encoding="utf-8") as f:
-                    json.dump(authors, f, ensure_ascii=False, indent=4)
+                save_data(authors, "authors.json")
                 break
         if not found:
-            with open("authors.json", "r", encoding="utf-8") as f:
-                authors = json.load(f)
+            authors = load_data("authors.json")
             authors.append(author_data)
-            with open("authors.json", "w", encoding="utf-8") as f:
-                json.dump(authors, f, ensure_ascii=False, indent=4)
+            save_data(authors, "authors.json")
     else:
-        with open("authors.json", "w", encoding="utf-8") as f:
-            json.dump([author_data], f, ensure_ascii=False, indent=4)
+        save_data([author_data], "authors.json")
 
 
 def sell_book(book_name, count):
-
-    with open("book.json", "r", encoding="utf-8") as f:
-        books = json.load(f)
+    books = load_data("book.json")
     found = False
     for book in books:
         if book["book_name"] == book_name and book["count"] >= count:
@@ -85,8 +83,7 @@ def sell_book(book_name, count):
             found = True
             price = book["sell_price"]
             print(f"{book_name} продано {count} шт.")
-            with open("book.json", "w", encoding="utf-8") as f:
-                json.dump(books, f, ensure_ascii=False, indent=4)
+            save_data(books, "book.json")
             transactions_data = {
                 "book_name": book_name,
                 "count": count,
@@ -94,12 +91,11 @@ def sell_book(book_name, count):
                 "price": price,
             }
             if os.path.isfile("transactions.json"):
-                with open("transactions.json", "r", encoding="utf-8") as f:
-                    transactions = json.load(f)
-                    transactions.append(transactions_data)
-                    with open("transactions.json", "w", encoding="utf-8") as f:
-                        json.dump(transactions, f, ensure_ascii=False, indent=4)
+                transactions = load_data("transactions.json")
+                transactions.append(transactions_data)
+                save_data(transactions, "transactions.json")
             break
+
         elif book["book_name"] == book_name and book["count"] < count:
             raise ValueError (f"Книг {book_name} недостаточно для продажи")
 
@@ -116,7 +112,7 @@ if __name__ == "__main__":
 
     # 1. Закупаем книги на склад
     buy_book(
-        book_name="Python Crash Course2",
+        book_name="Python Crash Course7",
         count=10,
         buy_price=1000,
         sell_price=1111,
