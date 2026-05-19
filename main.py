@@ -63,10 +63,10 @@ def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author
     index = find_book(book_name)
     if index is not None:
         books[index]["count"] += count
-        save_data(books, "book.json")
     else:
         books.append(book_data)
-        save_data(books, "book.json")
+
+    save_data(books, "book.json")
 
     #РАБОТА С АВТОРАМИ
     author_data = {
@@ -79,7 +79,7 @@ def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author
         save_data(authors, "authors.json")
     else:
         authors.append(author_data)
-        save_data(authors, "authors.json")
+    save_data(authors, "authors.json")
 
 
 def sell_book(book_name: str, count: int) -> None:
@@ -88,7 +88,7 @@ def sell_book(book_name: str, count: int) -> None:
     if index is None:
         raise ValueError(f"Книга {book_name} не найдена!")
 
-    elif books[index]["book_name"] == book_name and books[index]["count"] < count:
+    elif books[index]["count"] < count:
         raise ValueError (f"Книг {book_name} недостаточно для продажи")
     else:
         books[index]["count"] -= count
