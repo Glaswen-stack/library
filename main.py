@@ -18,6 +18,21 @@ def save_data(data, filename):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
+def find_book(book_name):
+    books = load_data("book.json")
+    for i, book in enumerate(books):
+        if book["book_name"] == book_name:
+            return i
+    return None
+
+def find_author(author_name):
+    authors = load_data("authors.json")
+    for i, author in enumerate(authors):
+        if author["author_name"] == author_name:
+            return i
+    return None
+
+
 def buy_book(book_name, count, buy_price, sell_price, author_name, genre, language, year):
     transactions_data = {
         "book_name": book_name,
@@ -25,7 +40,6 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
         "transaction_type": "buy",
         "price": buy_price,
     }
-
 
     transactions = load_data("transactions.json")
     transactions.append(transactions_data)
@@ -44,15 +58,12 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
     }
 
     books = load_data("book.json")
-    found = False
-    for book in books:
-        if book["book_name"] == book_name and book["author_name"] == author_name:
-            book["count"] += count
-            found = True
-            save_data(books, "book.json")
-            break
-    if not found:
-        load_data("book.json")
+    index = find_book(book_name)
+    if index is not None:
+        books[index]["count"] += count
+        save_data(books, "book.json")
+    if index is None:
+        books = load_data("book.json")
         books.append(book_data)
         save_data(books, "book.json")
 
@@ -62,51 +73,36 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
     }
 
     authors = load_data("authors.json")
-    found = False
-    for author in authors:
-        if author["author_name"] == author_name:
-            found = True
-            save_data(authors, "authors.json")
-            break
-    if not found:
-        authors = load_data("authors.json")
+    author_index = find_author(author_name)
+    if author_index is not None:
+        save_data(authors, "authors.json")
+    else:
         authors.append(author_data)
         save_data(authors, "authors.json")
 
 
-
 def sell_book(book_name, count):
     books = load_data("book.json")
-    found = False
-    for book in books:
-        if book["book_name"] == book_name and book["count"] >= count:
-            found = True
-            book["count"] -= count
-            price = book["sell_price"]
-            print(f"{book_name} продано {count} шт.")
-            save_data(books, "book.json")
+    index = find_book(book_name)
+    if books[index]["book_name"] == book_name and books[index]["count"] < count:
+        raise ValueError (f"Книг {book_name} недостаточно для продажи")
+    books[index]["count"] -= count
+    print(f"{book_name} было продано {count} шт!")
+    price = books[index]["sell_price"]
+    save_data(books, "book.json")
+    transactions_data = {
+        "book_name": book_name,
+        "count": count,
+        "transaction_type": "sell",
+        "price": price,
+    }
 
-            transactions_data = {
-                "book_name": book_name,
-                "count": count,
-                "transaction_type": "sell",
-                "price": price,
-            }
+    transactions = load_data("transactions.json")
+    transactions.append(transactions_data)
+    save_data(transactions, "transactions.json")
 
-            transactions = load_data("transactions.json")
-            transactions.append(transactions_data)
-            save_data(transactions, "transactions.json")
-
-
-
-
-        elif book["book_name"] == book_name and book["count"] < count:
-            raise ValueError (f"Книг {book_name} недостаточно для продажи")
-
-
-        if not found:
-            print(f"Книга {book_name} не найдена!")
-
+    if index is None:
+        print(f"Книга {book_name} не найдена!!!!")
 
 # ------------------------------------------
 
@@ -116,11 +112,11 @@ if __name__ == "__main__":
 
     # 1. Закупаем книги на склад
     buy_book(
-        book_name="Python Crash Course5",
+        book_name="Python Crash Course2",
         count=10,
         buy_price=1000,
         sell_price=1111,
-        author_name="author",
+        author_name="author6",
         genre="python",
         language="en",
         year=2001,
