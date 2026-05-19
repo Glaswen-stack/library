@@ -1,7 +1,7 @@
 import json
 import os
 
-def load_data(filename):
+def load_data(filename: str) -> list:
     if os.path.isfile(filename):
         with open(filename, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -14,11 +14,11 @@ def load_data(filename):
             json.dump([], f, ensure_ascii=False, indent=4)
         return []
 
-def save_data(data, filename):
+def save_data(data: list, filename: str) -> list | None:
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-def find_book(book_name):
+def find_book(book_name: str) -> int | None:
     books = load_data("book.json")
     for i, book in enumerate(books):
         if book["book_name"] == book_name:
@@ -27,7 +27,7 @@ def find_book(book_name):
 
 
 
-def find_author(author_name):
+def find_author(author_name: str) -> int | None:
     authors = load_data("authors.json")
     for i, author in enumerate(authors):
         if author["author_name"] == author_name:
@@ -35,7 +35,7 @@ def find_author(author_name):
     return None
 
 
-def buy_book(book_name, count, buy_price, sell_price, author_name, genre, language, year):
+def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author_name: str, genre: str, language: str, year: int) -> None:
     transactions_data = {
         "book_name": book_name,
         "count": count,
@@ -82,7 +82,7 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
         save_data(authors, "authors.json")
 
 
-def sell_book(book_name, count):
+def sell_book(book_name: str, count: int) -> None:
     books = load_data("book.json")
     index = find_book(book_name)
     if index is None:
@@ -126,8 +126,8 @@ if __name__ == "__main__":
         year=2001,
     )
      # 2. Продаем пару книг
-    sell_book(book_name="Python Crash Course7", count=3)
-    sell_book(book_name="Python Crash Course7", count=2)
+    sell_book(book_name="Python Crash Course2", count=3)
+    sell_book(book_name="Python Crash Course2", count=2)
 
     # 3. Пытаемся продать больше, чем есть на складе
     try:
