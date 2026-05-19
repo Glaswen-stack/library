@@ -25,6 +25,7 @@ def find_book(book_name):
             return i
     return None
 
+
 def find_author(author_name):
     authors = load_data("authors.json")
     for i, author in enumerate(authors):
@@ -101,8 +102,6 @@ def sell_book(book_name, count):
     transactions.append(transactions_data)
     save_data(transactions, "transactions.json")
 
-    if index is None:
-        print(f"Книга {book_name} не найдена!!!!")
 
 # ------------------------------------------
 
@@ -116,7 +115,7 @@ if __name__ == "__main__":
         count=10,
         buy_price=1000,
         sell_price=1111,
-        author_name="author6",
+        author_name="author9",
         genre="python",
         language="en",
         year=2001,
