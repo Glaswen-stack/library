@@ -26,6 +26,7 @@ def find_book(book_name):
     return None
 
 
+
 def find_author(author_name):
     authors = load_data("authors.json")
     for i, author in enumerate(authors):
@@ -63,8 +64,7 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
     if index is not None:
         books[index]["count"] += count
         save_data(books, "book.json")
-    if index is None:
-        books = load_data("book.json")
+    else:
         books.append(book_data)
         save_data(books, "book.json")
 
@@ -85,22 +85,27 @@ def buy_book(book_name, count, buy_price, sell_price, author_name, genre, langua
 def sell_book(book_name, count):
     books = load_data("book.json")
     index = find_book(book_name)
-    if books[index]["book_name"] == book_name and books[index]["count"] < count:
-        raise ValueError (f"Книг {book_name} недостаточно для продажи")
-    books[index]["count"] -= count
-    print(f"{book_name} было продано {count} шт!")
-    price = books[index]["sell_price"]
-    save_data(books, "book.json")
-    transactions_data = {
-        "book_name": book_name,
-        "count": count,
-        "transaction_type": "sell",
-        "price": price,
-    }
+    if index is None:
+        raise ValueError(f"Книга {book_name} не найдена!")
 
-    transactions = load_data("transactions.json")
-    transactions.append(transactions_data)
-    save_data(transactions, "transactions.json")
+    elif books[index]["book_name"] == book_name and books[index]["count"] < count:
+        raise ValueError (f"Книг {book_name} недостаточно для продажи")
+    else:
+        books[index]["count"] -= count
+        print(f"{book_name} было продано {count} шт!")
+        price = books[index]["sell_price"]
+        save_data(books, "book.json")
+        transactions_data = {
+            "book_name": book_name,
+            "count": count,
+            "transaction_type": "sell",
+            "price": price,
+        }
+
+        transactions = load_data("transactions.json")
+        transactions.append(transactions_data)
+        save_data(transactions, "transactions.json")
+
 
 
 # ------------------------------------------
@@ -121,8 +126,8 @@ if __name__ == "__main__":
         year=2001,
     )
      # 2. Продаем пару книг
-    sell_book(book_name="Python Crash Course2", count=3)
-    sell_book(book_name="Python Crash Course2", count=2)
+    sell_book(book_name="Python Crash Course7", count=3)
+    sell_book(book_name="Python Crash Course7", count=2)
 
     # 3. Пытаемся продать больше, чем есть на складе
     try:
