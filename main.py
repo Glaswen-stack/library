@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def load_data(filename: str) -> list:
     if os.path.isfile(filename):
         with open(filename, "r", encoding="utf-8") as f:
