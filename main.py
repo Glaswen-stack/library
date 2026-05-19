@@ -66,8 +66,7 @@ def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author
         books[index]["count"] += count
     else:
         books.append(book_data)
-
-    save_data(books, "book.json")
+        save_data(books, "book.json")
 
     #РАБОТА С АВТОРАМИ
     author_data = {
