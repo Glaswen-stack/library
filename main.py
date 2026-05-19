@@ -75,10 +75,9 @@ def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author
 
     authors = load_data("authors.json")
     author_index = find_author(author_name)
-    if author_index is not None:
-        save_data(authors, "authors.json")
-    else:
+    if author_index is None:
         authors.append(author_data)
+
     save_data(authors, "authors.json")
 
 
@@ -120,7 +119,7 @@ if __name__ == "__main__":
         count=10,
         buy_price=1000,
         sell_price=1111,
-        author_name="author9",
+        author_name="author",
         genre="python",
         language="en",
         year=2001,
