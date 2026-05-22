@@ -1,5 +1,8 @@
 import json
 import os
+from gettext import translation
+
+from schemas import Book, Transaction, Author
 
 
 def load_data(filename: str) -> list:
@@ -36,7 +39,8 @@ def find_author(author_name: str) -> int | None:
     return None
 
 
-def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author_name: str, genre: str, language: str, year: int) -> None:
+def buy_book(book_name: str, count: int, buy_price: int, sell_price: int, author_name: str,
+             genre: str, language: str, year: int) -> None:
     transactions_data = {
         "book_name": book_name,
         "count": count,
@@ -113,24 +117,58 @@ def sell_book(book_name: str, count: int) -> None:
 if __name__ == "__main__":
     print("Начинаем симуляцию магазина...")
 
-    # 1. Закупаем книги на склад
-    buy_book(
-        book_name="Python Crash Course2",
-        count=10,
-        buy_price=1000,
-        sell_price=1111,
-        author_name="author",
-        genre="python",
-        language="en",
-        year=2001,
+    book_info = {
+        "book_name": "Python Crash Course2",
+        "count": 10,
+        "buy_price": 1000,
+        "sell_price": 1111,
+        "author_name": "21",
+        "genre": "python",
+        "language": "en",
+        "year": 2001,
+    }
+    book_class = Book(**book_info)
+    author_class = Author(author_name=book_class.author_name)
+    translation_class = Transaction(
+        book_name=book_class.book_name,
+        transaction_type="buy",
+        price=book_class.buy_price,
+        count=book_class.count,
     )
+    try:
+        buy_book(
+            book_name=book_class.book_name,
+            count=book_class.count,
+            buy_price=book_class.buy_price,
+            sell_price=book_class.sell_price,
+            author_name=book_class.author_name,
+            genre=book_class.genre,
+            language=book_class.language,
+            year=book_class.year
+        )
+    except ValueError:
+        print("Ошибка валидации")
+
+
+
+    # 1. Закупаем книги на склад
+    # buy_book(
+    #     book_name="Python Crash Course2",
+    #     count=10,
+    #     buy_price=-1000,
+    #     sell_price=1111,
+    #     author_name="author",
+    #     genre="python",
+    #     language="en",
+    #     year=2001,
+    # )
      # 2. Продаем пару книг
-    sell_book(book_name="Python Crash Course2", count=3)
-    sell_book(book_name="Python Crash Course2", count=2)
+    sell_book(book_name=book_class.book_name, count=3)
+    sell_book(book_name=book_class.book_name, count=2)
 
     # 3. Пытаемся продать больше, чем есть на складе
     try:
-        sell_book(book_name="Python Crash Course2", count=100)
+        sell_book(book_name=book_class.book_name, count=-100)
         print("ОШИБКА: Твой код позволил продать 100 книг, хотя на складе их всего 5!")
     except ValueError:
         print("ОТЛИЧНО: Твой код правильно заблокировал продажу (выдал ValueError).")
