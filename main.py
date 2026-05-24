@@ -2,7 +2,6 @@ import json
 import os
 
 from pydantic import ValidationError
-
 from schemas import Book, BookSell, Transaction, Author
 
 
