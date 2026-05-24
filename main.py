@@ -1,9 +1,7 @@
 import json
 import os
-from gettext import translation
 
 from pydantic import ValidationError
-from pydantic.v1.class_validators import Validator
 
 from schemas import Book, BookSell, Transaction, Author
 
