@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field, model_validator, ValidationError
 
 
@@ -18,9 +17,11 @@ class Book(BaseModel):
             raise ValidationError("Цена продажи должна быть больше цены покупки")
         return self
 
+
 class BookSell(BaseModel):
     book_name: str = Field(min_length=1, max_length=200)
     count: int = Field(gt=0)
+
 
 class Transaction(BaseModel):
     book_name: str = Field(min_length=1, max_length=200)
@@ -28,6 +29,6 @@ class Transaction(BaseModel):
     transaction_type: str = Field(min_length=1, max_length=200)
     price: int = Field(gt=0)
 
+
 class Author(BaseModel):
     author_name: str = Field(min_length=1, max_length=200)
-
