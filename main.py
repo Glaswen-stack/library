@@ -149,16 +149,12 @@ if __name__ == "__main__":
         sell_book(sell_book_class_2)
 
         # 3. Пытаемся продать больше, чем есть на складе
-        try:
-            sell_book(sell_book_class_3)
-            print(
-                "ОШИБКА: Твой код позволил продать 100 книг, хотя на складе их всего 5!"
-            )
-        except ValueError:
-            print(
-                "ОТЛИЧНО: Твой код правильно заблокировал продажу (выдал ValueError)."
-            )
 
-        print("Симуляция завершена. Проверь файлы book.json и transaction.json!")
+        sell_book(sell_book_class_3)
+        print("ОШИБКА: Твой код позволил продать 100 книг, хотя на складе их всего 5!")
     except ValidationError:
         print("Ошибка валидации")
+    except ValueError:
+        print("ОТЛИЧНО: Твой код правильно заблокировал продажу (выдал ValueError).")
+
+    print("Симуляция завершена. Проверь файлы book.json и transaction.json!")
