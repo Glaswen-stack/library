@@ -8,9 +8,44 @@ def get_all_books() -> list:
     books = load_data("book.json")
     return books
 
+def get_book_by_id(book_id: int) -> Optional[Book]:
+    books = load_data("book.json")
+    for book in books:
+        if book.get("id") == book_id:
+            return book
+    return None
+
+def get_book_list() -> list:
+    books = load_data("book.json")
+    books_list = []
+    for book in books:
+        book_id = book.get("id")
+        book_name = book.get("book_name")
+        books_list.append({
+            "id": book_id,
+            "book_name": book_name,
+        })
+    return books_list
+
 def get_all_transactions() -> list:
     transactions = load_data("transactions.json")
     return transactions
+
+def get_profit() -> str | None:
+    transactions = load_data("transactions.json")
+    total_buy = 0
+    total_sell = 0
+    for transaction in transactions:
+        if transaction["transaction_type"] == "buy":
+            total_buy += transaction["count"] * transaction["price"]
+        elif transaction["transaction_type"] == "sell":
+            total_sell += transaction["count"] * transaction["price"]
+    profit = total_sell - total_buy
+    if profit > 0:
+        return f"Выручка {total_sell}, затраты на закупку {total_buy}, прибыль равна {profit}"
+    else:
+        return f"Выручка {total_sell}, затраты на закупку {total_buy}, прибыль равна 0 "
+
 
 
 def load_data(filename: str) -> list:
@@ -67,7 +102,14 @@ def buy_book(book: Book) -> None:
     if index is not None:
         books[index]["count"] += book.count
     else:
-        books.append(book.model_dump())
+        max_id = 0
+        for b in books:
+            if "id" in b and b["id"] > max_id:
+                max_id = b["id"]
+        new_id = max_id + 1
+        new_book = book.model_dump()
+        new_book["id"] = new_id
+        books.append(new_book)
 
     save_data(books, "book.json")
 
