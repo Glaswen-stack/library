@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator, ValidationError
+from pydantic import BaseModel, Field, model_validator
 
 
 class Book(BaseModel):
@@ -14,7 +14,7 @@ class Book(BaseModel):
     @model_validator(mode="after")
     def check_profit(self):
         if self.sell_price <= self.buy_price:
-            raise ValidationError("Цена продажи должна быть больше цены покупки")
+            raise ValueError("Цена продажи должна быть больше цены покупки")
         return self
 
 
@@ -32,3 +32,8 @@ class Transaction(BaseModel):
 
 class Author(BaseModel):
     author_name: str = Field(min_length=1, max_length=200)
+
+class ProfitInfo(BaseModel):
+    revenue: int
+    expenses: int
+    profit: int

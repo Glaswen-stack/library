@@ -1,18 +1,17 @@
 import json
 import os
 
-from typing import Optional
-from schemas import Book, BookSell, Transaction, Author
+from schemas import Book, BookSell, Transaction, Author, ProfitInfo
 
 def get_all_books() -> list:
     books = load_data("book.json")
     return books
 
-def get_book_by_id(book_id: int) -> Optional[Book]:
+def get_book_by_id(book_id: int) -> Book | None:
     books = load_data("book.json")
     for book in books:
         if book.get("id") == book_id:
-            return book
+            return Book(**book)
     return None
 
 def get_book_list() -> list:
@@ -27,11 +26,7 @@ def get_book_list() -> list:
         })
     return books_list
 
-def get_all_transactions() -> list:
-    transactions = load_data("transactions.json")
-    return transactions
-
-def get_profit() -> str | None:
+def get_profit() -> ProfitInfo:
     transactions = load_data("transactions.json")
     total_buy = 0
     total_sell = 0
@@ -41,10 +36,11 @@ def get_profit() -> str | None:
         elif transaction["transaction_type"] == "sell":
             total_sell += transaction["count"] * transaction["price"]
     profit = total_sell - total_buy
-    if profit > 0:
-        return f"Выручка {total_sell}, затраты на закупку {total_buy}, прибыль равна {profit}"
-    else:
-        return f"Выручка {total_sell}, затраты на закупку {total_buy}, прибыль равна 0 "
+    return ProfitInfo(
+        revenue=total_sell,
+        expenses=total_buy,
+        profit=profit
+    )
 
 
 
@@ -62,12 +58,12 @@ def load_data(filename: str) -> list:
         return []
 
 
-def save_data(data: list, filename: str) -> Optional[list]:
+def save_data(data: list, filename: str) -> None:
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def find_book(book_name: str) -> Optional[int]:
+def find_book(book_name: str) -> int | None:
     books = load_data("book.json")
     for i, book in enumerate(books):
         if book["book_name"] == book_name:
@@ -75,7 +71,7 @@ def find_book(book_name: str) -> Optional[int]:
     return None
 
 
-def find_author(author_name: str) -> Optional[int]:
+def find_author(author_name: str) -> int | None:
     authors = load_data("authors.json")
     for i, author in enumerate(authors):
         if author["author_name"] == author_name:
