@@ -45,8 +45,7 @@ async def get_book(book_id: int):
         book = get_book_by_id(book_id)
         if book is None:
             raise HTTPException(status_code=404, detail="Book not found")
-        else:
-            return book
+        return book
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -54,10 +53,7 @@ async def get_book(book_id: int):
 async def transactions_list():
     try:
         transactions = load_data("transactions.json")
-        if transactions is None:
-            raise HTTPException(status_code=404, detail="Transactions not found")
-        else:
-            return transactions
+        return transactions
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -65,10 +61,7 @@ async def transactions_list():
 async def profit_for_books():
     try:
         profit = get_profit()
-        if profit is None:
-            raise HTTPException(status_code=404, detail="Transactions not found")
-        else:
-            return profit
+        return profit
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
