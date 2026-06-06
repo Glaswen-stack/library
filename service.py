@@ -3,9 +3,11 @@ import os
 
 from schemas import Book, BookSell, Transaction, Author, ProfitInfo
 
+
 def get_all_books() -> list:
     books = load_data("book.json")
     return books
+
 
 def get_book_by_id(book_id: int) -> Book | None:
     books = load_data("book.json")
@@ -14,17 +16,21 @@ def get_book_by_id(book_id: int) -> Book | None:
             return Book(**book)
     return None
 
+
 def get_book_list() -> list:
     books = load_data("book.json")
     books_list = []
     for book in books:
         book_id = book.get("id")
         book_name = book.get("book_name")
-        books_list.append({
-            "id": book_id,
-            "book_name": book_name,
-        })
+        books_list.append(
+            {
+                "id": book_id,
+                "book_name": book_name,
+            }
+        )
     return books_list
+
 
 def get_profit() -> ProfitInfo:
     transactions = load_data("transactions.json")
@@ -36,12 +42,7 @@ def get_profit() -> ProfitInfo:
         elif transaction["transaction_type"] == "sell":
             total_sell += transaction["count"] * transaction["price"]
     profit = total_sell - total_buy
-    return ProfitInfo(
-        revenue=total_sell,
-        expenses=total_buy,
-        profit=profit
-    )
-
+    return ProfitInfo(revenue=total_sell, expenses=total_buy, profit=profit)
 
 
 def load_data(filename: str) -> list:

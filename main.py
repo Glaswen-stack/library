@@ -1,4 +1,3 @@
-
 from pydantic import ValidationError
 from schemas import Book, BookSell
 from service import buy_book, sell_book

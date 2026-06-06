@@ -33,6 +33,7 @@ class Transaction(BaseModel):
 class Author(BaseModel):
     author_name: str = Field(min_length=1, max_length=200)
 
+
 class ProfitInfo(BaseModel):
     revenue: int
     expenses: int
