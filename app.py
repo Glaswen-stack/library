@@ -70,6 +70,15 @@ async def transactions_list():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/authors")
+async def get_authors():
+    try:
+        authors = load_data("authors.json")
+        return authors
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/profit")
 async def profit_for_books():
     try:
