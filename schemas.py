@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field, model_validator
 
+from typing import Optional
+
 
 class Book(BaseModel):
     book_name: str = Field(min_length=1, max_length=200)
@@ -10,6 +12,7 @@ class Book(BaseModel):
     genre: str = Field(min_length=2, max_length=100)
     language: str = Field(min_length=2, max_length=50)
     year: int = Field(ge=1000, le=2026)
+    id: Optional[int] = Field(default=None, gt=0)
 
     @model_validator(mode="after")
     def check_profit(self):
