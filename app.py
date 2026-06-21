@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
-from schemas import Book, BookSell
+from schemas import Book, BookSell, Author
 from service import (
     buy_book,
     sell_book,
@@ -17,8 +17,8 @@ app = FastAPI(title="Book Store API")
 @app.post("/books/purchase")
 async def purchase_book(book_data: Book):
     try:
-        buy_book(book_data)
-        return {"success": "purchased"}
+        purchased_book = buy_book(book_data)
+        return purchased_book
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -66,6 +66,15 @@ async def transactions_list():
     try:
         transactions = load_data("transactions.json")
         return transactions
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/authors", response_model=list[Author])
+async def get_authors():
+    try:
+        authors = load_data("authors.json")
+        return authors
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

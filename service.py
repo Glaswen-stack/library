@@ -80,7 +80,7 @@ def find_author(author_name: str) -> int | None:
     return None
 
 
-def buy_book(book: Book) -> None:
+def buy_book(book: Book) -> Book:
     transactions_data = Transaction(
         book_name=book.book_name,
         count=book.count,
@@ -98,6 +98,7 @@ def buy_book(book: Book) -> None:
     index = find_book(book.book_name)
     if index is not None:
         books[index]["count"] += book.count
+        saved_book_dict = books[index]
     else:
         max_id = 0
         for b in books:
@@ -107,6 +108,7 @@ def buy_book(book: Book) -> None:
         new_book = book.model_dump()
         new_book["id"] = new_id
         books.append(new_book)
+        saved_book_dict = new_book
 
     save_data(books, "book.json")
 
@@ -120,6 +122,8 @@ def buy_book(book: Book) -> None:
     if author_index is None:
         authors.append(author_data.model_dump())
         save_data(authors, "authors.json")
+
+    return Book(**saved_book_dict)
 
 
 def sell_book(book: BookSell) -> None:
