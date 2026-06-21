@@ -1,7 +1,9 @@
 import json
 import urllib.request
 
+
 BASE_URL = "http://127.0.0.1:8000"
+
 
 id_purchased_book = None
 
