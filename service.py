@@ -1,151 +1,118 @@
-import json
-import os
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import func
 
-from schemas import Book, BookSell, Transaction, Author, ProfitInfo
+from models import Book as BookModel
+from models import Author as AuthorModel
+from models import Transaction as TransactionModel
 
-
-def get_all_books() -> list:
-    books = load_data("book.json")
-    return books
-
-
-def get_book_by_id(book_id: int) -> Book | None:
-    books = load_data("book.json")
-    for book in books:
-        if book.get("id") == book_id:
-            return Book(**book)
-    return None
+from schemas import Book, BookSell, ProfitInfo
 
 
-def get_book_list() -> list:
-    books = load_data("book.json")
-    books_list = []
-    for book in books:
-        book_id = book.get("id")
-        book_name = book.get("book_name")
-        books_list.append(
-            {
-                "id": book_id,
-                "book_name": book_name,
-            }
-        )
-    return books_list
+def get_all_books(db: Session) -> list[BookModel]:
+    return db.query(BookModel).all()
 
 
-def get_profit() -> ProfitInfo:
-    transactions = load_data("transactions.json")
-    total_buy = 0
-    total_sell = 0
-    for transaction in transactions:
-        if transaction["transaction_type"] == "buy":
-            total_buy += transaction["count"] * transaction["price"]
-        elif transaction["transaction_type"] == "sell":
-            total_sell += transaction["count"] * transaction["price"]
+def get_book_by_id(db: Session, book_id: int) -> BookModel | None:
+    return db.query(BookModel).filter(BookModel.id == book_id).first()
+
+
+def get_book_list(db: Session) -> list[dict]:
+    books = db.query(BookModel.id, BookModel.title).all()
+    return [
+        {
+            "id": b.id,
+            "title": b.title,
+        }
+        for b in books
+    ]
+
+
+def get_transaction_list(db: Session) -> list[TransactionModel]:
+    return db.query(TransactionModel).all()
+
+
+def get_authors_list(db: Session) -> list[AuthorModel]:
+    return db.query(AuthorModel).all()
+
+
+def get_profit(db: Session) -> ProfitInfo:
+    total_buy = (
+        db.query(func.sum(TransactionModel.price * TransactionModel.count))
+        .filter(TransactionModel.transaction_type == "buy")
+        .scalar()
+        or 0
+    )
+    total_sell = (
+        db.query(func.sum(TransactionModel.price * TransactionModel.count))
+        .filter(TransactionModel.transaction_type == "sell")
+        .scalar()
+        or 0
+    )
     profit = total_sell - total_buy
     return ProfitInfo(revenue=total_sell, expenses=total_buy, profit=profit)
 
 
-def load_data(filename: str) -> list:
-    if os.path.isfile(filename):
-        with open(filename, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, list):
-            return data
-        else:
-            return [data]
-    else:
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump([], f, ensure_ascii=False, indent=4)
-        return []
-
-
-def save_data(data: list, filename: str) -> None:
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-
-def find_book(book_name: str) -> int | None:
-    books = load_data("book.json")
-    for i, book in enumerate(books):
-        if book["book_name"] == book_name:
-            return i
-    return None
-
-
-def find_author(author_name: str) -> int | None:
-    authors = load_data("authors.json")
-    for i, author in enumerate(authors):
-        if author["author_name"] == author_name:
-            return i
-    return None
-
-
-def buy_book(book: Book) -> Book:
-    transactions_data = Transaction(
-        book_name=book.book_name,
-        count=book.count,
-        transaction_type="buy",
-        price=book.buy_price,
+def buy_book(db: Session, book_data: Book) -> BookModel:
+    author = (
+        db.query(AuthorModel)
+        .filter(AuthorModel.author_name == book_data.author_name)
+        .first()
     )
+    if not author:
+        author = AuthorModel(author_name=book_data.author_name)
+        db.add(author)
+        db.commit()
+        db.refresh(author)
 
-    transactions = load_data("transactions.json")
-    transactions.append(transactions_data.model_dump())
-    save_data(transactions, "transactions.json")
+    book = db.query(BookModel).filter(BookModel.title == book_data.book_name).first()
 
-    # РАБОТА С КНИГАМИ
-
-    books = load_data("book.json")
-    index = find_book(book.book_name)
-    if index is not None:
-        books[index]["count"] += book.count
-        saved_book_dict = books[index]
+    if book:
+        book.count += book_data.count
     else:
-        max_id = 0
-        for b in books:
-            if "id" in b and b["id"] > max_id:
-                max_id = b["id"]
-        new_id = max_id + 1
-        new_book = book.model_dump()
-        new_book["id"] = new_id
-        books.append(new_book)
-        saved_book_dict = new_book
-
-    save_data(books, "book.json")
-
-    # РАБОТА С АВТОРАМИ
-    author_data = Author(
-        author_name=book.author_name,
-    )
-
-    authors = load_data("authors.json")
-    author_index = find_author(book.author_name)
-    if author_index is None:
-        authors.append(author_data.model_dump())
-        save_data(authors, "authors.json")
-
-    return Book(**saved_book_dict)
-
-
-def sell_book(book: BookSell) -> None:
-    books = load_data("book.json")
-    index = find_book(book.book_name)
-    if index is None:
-        raise ValueError(f"Книга {book.book_name} не найдена!")
-
-    elif books[index]["count"] < book.count:
-        raise ValueError(f"Книг {book.book_name} недостаточно для продажи")
-    else:
-        books[index]["count"] -= book.count
-        print(f"{book.book_name} было продано {book.count} шт!")
-        price = books[index]["sell_price"]
-        save_data(books, "book.json")
-        transactions_data = Transaction(
-            book_name=book.book_name,
-            count=book.count,
-            transaction_type="sell",
-            price=price,
+        book = BookModel(
+            title=book_data.book_name,
+            count=book_data.count,
+            buy_price=book_data.buy_price,
+            sell_price=book_data.sell_price,
+            genre=book_data.genre,
+            language=book_data.language,
+            year=book_data.year,
+            author_id=author.id,
         )
+        db.add(book)
+    db.commit()
+    db.refresh(book)
 
-        transactions = load_data("transactions.json")
-        transactions.append(transactions_data.model_dump())
-        save_data(transactions, "transactions.json")
+    transaction = TransactionModel(
+        book_id=book.id,
+        title=book.title,
+        transaction_type="buy",
+        count=book_data.count,
+        price=book_data.buy_price,
+    )
+    db.add(transaction)
+    db.commit()
+
+    return book
+
+
+def sell_book(db: Session, sell_data: BookSell) -> BookModel:
+    book = db.query(BookModel).filter(BookModel.title == sell_data.book_name).first()
+    if not book:
+        raise ValueError(f"Книга '{sell_data.book_name}' не найдена")
+    if book.count < sell_data.count:
+        raise ValueError(f"Недостаточно книг '{sell_data.book_name}' на складе")
+
+    book.count -= sell_data.count
+
+    transaction = TransactionModel(
+        book_id=book.id,
+        title=book.title,
+        transaction_type="sell",
+        count=sell_data.count,
+        price=book.sell_price,
+    )
+    db.add(transaction)
+    db.commit()
+    db.refresh(book)
+    return book

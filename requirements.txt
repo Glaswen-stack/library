@@ -1,3 +1,4 @@
 pydantic
 black
 fastapi
+sqlalchemy
