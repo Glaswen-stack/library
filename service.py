@@ -17,11 +17,11 @@ def get_book_by_id(db: Session, book_id: int) -> BookModel | None:
 
 
 def get_book_list(db: Session) -> list[dict]:
-    books = db.query(BookModel.id, BookModel.title).all()
+    books = db.query(BookModel.id, BookModel.book_name).all()
     return [
         {
             "id": b.id,
-            "title": b.title,
+            "book_name": b.book_name,
         }
         for b in books
     ]
@@ -52,6 +52,18 @@ def get_profit(db: Session) -> ProfitInfo:
     return ProfitInfo(revenue=total_sell, expenses=total_buy, profit=profit)
 
 
+def delete_all_data(db: Session) -> dict:
+    deleted_transactions = db.query(TransactionModel).delete()
+    deleted_books = db.query(BookModel).delete()
+    deleted_authors = db.query(AuthorModel).delete()
+    db.commit()
+    return {
+        "deleted_transactions": deleted_transactions,
+        "deleted_books": deleted_books,
+        "deleted_authors": deleted_authors,
+    }
+
+
 def buy_book(db: Session, book_data: Book) -> BookModel:
     author = (
         db.query(AuthorModel)
@@ -64,13 +76,15 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
         db.commit()
         db.refresh(author)
 
-    book = db.query(BookModel).filter(BookModel.title == book_data.book_name).first()
+    book = (
+        db.query(BookModel).filter(BookModel.book_name == book_data.book_name).first()
+    )
 
     if book:
         book.count += book_data.count
     else:
         book = BookModel(
-            title=book_data.book_name,
+            book_name=book_data.book_name,
             count=book_data.count,
             buy_price=book_data.buy_price,
             sell_price=book_data.sell_price,
@@ -85,7 +99,7 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
 
     transaction = TransactionModel(
         book_id=book.id,
-        title=book.title,
+        book_name=book.book_name,
         transaction_type="buy",
         count=book_data.count,
         price=book_data.buy_price,
@@ -97,7 +111,9 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
 
 
 def sell_book(db: Session, sell_data: BookSell) -> BookModel:
-    book = db.query(BookModel).filter(BookModel.title == sell_data.book_name).first()
+    book = (
+        db.query(BookModel).filter(BookModel.book_name == sell_data.book_name).first()
+    )
     if not book:
         raise ValueError(f"Книга '{sell_data.book_name}' не найдена")
     if book.count < sell_data.count:
@@ -107,7 +123,7 @@ def sell_book(db: Session, sell_data: BookSell) -> BookModel:
 
     transaction = TransactionModel(
         book_id=book.id,
-        title=book.title,
+        book_name=book.book_name,
         transaction_type="sell",
         count=sell_data.count,
         price=book.sell_price,

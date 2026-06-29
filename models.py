@@ -7,7 +7,7 @@ from database import Base
 class Book(Base):
     __tablename__ = "books"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
+    book_name = Column(String, nullable=False)
     count = Column(Integer, nullable=False)
     buy_price = Column(Integer, nullable=False)
     sell_price = Column(Integer, nullable=False)
@@ -33,7 +33,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
     book_id = Column(Integer, ForeignKey("books.id"), nullable=False)
-    title = Column(String, nullable=False)
+    book_name = Column(String, nullable=False)
     count = Column(Integer, nullable=False)
     transaction_type = Column(String, nullable=False)
     price = Column(Integer, nullable=False)

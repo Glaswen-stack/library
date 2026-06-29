@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 
 
 from sqlalchemy.orm import Session
-from database import get_db
+from database import get_db, engine, Base
 
 from schemas import Book, BookSell, Author
 from service import (
@@ -14,9 +14,12 @@ from service import (
     get_profit,
     get_transaction_list,
     get_authors_list,
+    delete_all_data,
 )
 
 app = FastAPI(title="Book Store API")
+
+Base.metadata.create_all(bind=engine)
 
 
 @app.post("/books/purchase")
@@ -25,7 +28,7 @@ async def purchase_book(book_data: Book, db: Session = Depends(get_db)):
         purchased_book = buy_book(db, book_data)
         return {
             "id": purchased_book.id,
-            "title": purchased_book.title,
+            "book_name": purchased_book.book_name,
             "count": purchased_book.count,
             "buy_price": purchased_book.buy_price,
             "sell_price": purchased_book.sell_price,
@@ -43,7 +46,7 @@ async def sell_books(book_data: BookSell, db: Session = Depends(get_db)):
     try:
         sold_book = sell_book(db, book_data)
         return {
-            "title": sold_book.title,
+            "book_name": sold_book.book_name,
             "count": book_data.count,
         }
     except ValueError as e:
@@ -104,6 +107,15 @@ async def profit_for_books(db: Session = Depends(get_db)):
     try:
         profit = get_profit(db)
         return profit
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/delete-all")
+async def delete_all_info(db: Session = Depends(get_db)):
+    try:
+        result = delete_all_data(db)
+        return {"message": "Все данные удалены", "details": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

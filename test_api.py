@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import urllib.error
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -78,8 +79,10 @@ def test_purchase():
             assert saved_book["book_name"] == book_data["book_name"]
             assert saved_book["count"] == count_after
             print("✅ POST /books/purchase книга создана/найдена, count изменен")
-    except Exception as e:
-        print(f"❌ Ошибка в books/purchase: {e}")
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8")
+        print(f"❌ Ошибка {e.code}: {e.reason}")
+        print(f"❌ Ошибка {error_body}")
 
     authors = api_get_authors()
     saved_author = None
@@ -144,8 +147,10 @@ def test_sell_book():
             print(f"❌ Ошибка в books/sell: транзакция не найдена")
 
         print(f"✅ POST /books/sell ручка исполнена")
-    except Exception as e:
-        print(f"❌ Ошибка в books/sell: {e}")
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8")
+        print(f"❌ Ошибка {e.code}: {e.reason}")
+        print(f"❌ Ошибка {error_body}")
 
 
 def test_get_book_by_id():
