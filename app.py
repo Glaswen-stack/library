@@ -4,7 +4,8 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import get_db, engine, Base
 
-from schemas import Book, BookSell, Author
+from schemas import Book, BookSell, Author, BookOut
+from models import Book as BookModel
 from service import (
     buy_book,
     sell_book,
@@ -22,33 +23,20 @@ app = FastAPI(title="Book Store API")
 Base.metadata.create_all(bind=engine)
 
 
-@app.post("/books/purchase")
+@app.post("/books/purchase", response_model=BookOut)
 async def purchase_book(book_data: Book, db: Session = Depends(get_db)):
     try:
         purchased_book = buy_book(db, book_data)
-        return {
-            "id": purchased_book.id,
-            "book_name": purchased_book.book_name,
-            "count": purchased_book.count,
-            "buy_price": purchased_book.buy_price,
-            "sell_price": purchased_book.sell_price,
-            "author": purchased_book.author,
-            "genre": purchased_book.genre,
-            "language": purchased_book.language,
-            "year": purchased_book.year,
-        }
+        return purchased_book
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/books/sell")
+@app.post("/books/sell", response_model=BookSell)
 async def sell_books(book_data: BookSell, db: Session = Depends(get_db)):
     try:
         sold_book = sell_book(db, book_data)
-        return {
-            "book_name": sold_book.book_name,
-            "count": book_data.count,
-        }
+        return sold_book
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

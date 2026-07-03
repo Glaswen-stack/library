@@ -11,6 +11,7 @@ class Book(Base):
     count = Column(Integer, nullable=False)
     buy_price = Column(Integer, nullable=False)
     sell_price = Column(Integer, nullable=False)
+    author_name = Column(String, nullable=False, default="")
     genre = Column(String, nullable=False)
     language = Column(String, nullable=False)
     year = Column(Integer, nullable=False)

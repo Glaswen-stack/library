@@ -90,7 +90,10 @@ def test_purchase():
         if a["author_name"] == book_data["author_name"]:
             saved_author = a
             break
-    if saved_author["author_name"] == book_data["author_name"]:
+    if (
+        saved_author is not None
+        and saved_author["author_name"] == book_data["author_name"]
+    ):
         print("✅ POST /books/purchase автор найден")
     else:
         print(f"❌ Ошибка в books/purchase: автор не найден {book_data['author_name']}")
@@ -102,7 +105,8 @@ def test_purchase():
             saved_transaction = t
             break
     if (
-        saved_transaction["count"] == book_data["count"]
+        saved_transaction is not None
+        and saved_transaction["count"] == book_data["count"]
         and saved_transaction["transaction_type"] == "buy"
     ):
         print("✅ POST /books/purchase транзакция найдена")

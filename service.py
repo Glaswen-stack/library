@@ -73,8 +73,7 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
     if not author:
         author = AuthorModel(author_name=book_data.author_name)
         db.add(author)
-        db.commit()
-        db.refresh(author)
+        db.flush()
 
     book = (
         db.query(BookModel).filter(BookModel.book_name == book_data.book_name).first()
@@ -94,8 +93,7 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
             author_id=author.id,
         )
         db.add(book)
-    db.commit()
-    db.refresh(book)
+    db.flush()
 
     transaction = TransactionModel(
         book_id=book.id,
@@ -110,7 +108,7 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
     return book
 
 
-def sell_book(db: Session, sell_data: BookSell) -> BookModel:
+def sell_book(db: Session, sell_data: BookSell) -> BookSell:
     book = (
         db.query(BookModel).filter(BookModel.book_name == sell_data.book_name).first()
     )
@@ -131,4 +129,4 @@ def sell_book(db: Session, sell_data: BookSell) -> BookModel:
     db.add(transaction)
     db.commit()
     db.refresh(book)
-    return book
+    return BookSell(book_name=book.book_name, count=sell_data.count)
