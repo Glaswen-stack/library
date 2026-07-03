@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from database import get_db, engine, Base
 
 from schemas import Book, BookSell, Author, BookOut
-from models import Book as BookModel
 from service import (
     buy_book,
     sell_book,
