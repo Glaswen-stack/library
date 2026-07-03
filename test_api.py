@@ -1,6 +1,6 @@
 import json
-import urllib.request
 import urllib.error
+import urllib.request
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -59,9 +59,7 @@ def test_purchase():
     count_before = api_get_book_count(book_data["book_name"])
 
     json_data = json.dumps(book_data).encode("utf-8")
-    req = urllib.request.Request(
-        f"{BASE_URL}/books/purchase", data=json_data, method="POST"
-    )
+    req = urllib.request.Request(f"{BASE_URL}/books/purchase", data=json_data, method="POST")
     req.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(req) as response:
@@ -90,10 +88,7 @@ def test_purchase():
         if a["author_name"] == book_data["author_name"]:
             saved_author = a
             break
-    if (
-        saved_author is not None
-        and saved_author["author_name"] == book_data["author_name"]
-    ):
+    if saved_author is not None and saved_author["author_name"] == book_data["author_name"]:
         print("✅ POST /books/purchase автор найден")
     else:
         print(f"❌ Ошибка в books/purchase: автор не найден {book_data['author_name']}")
@@ -111,7 +106,7 @@ def test_purchase():
     ):
         print("✅ POST /books/purchase транзакция найдена")
     else:
-        print(f"❌ Ошибка в books/purchase: транзакция не найдена")
+        print("❌ Ошибка в books/purchase: транзакция не найдена")
 
 
 def test_sell_book():
@@ -126,9 +121,7 @@ def test_sell_book():
         return
 
     json_data = json.dumps(data).encode("utf-8")
-    req = urllib.request.Request(
-        f"{BASE_URL}/books/sell", data=json_data, method="POST"
-    )
+    req = urllib.request.Request(f"{BASE_URL}/books/sell", data=json_data, method="POST")
     req.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(req) as response:
@@ -142,15 +135,12 @@ def test_sell_book():
             if t["book_name"] == data["book_name"] and t["transaction_type"] == "sell":
                 saved_transaction = t
                 break
-        if (
-            saved_transaction["count"] == data["count"]
-            and saved_transaction["transaction_type"] == "sell"
-        ):
+        if saved_transaction["count"] == data["count"] and saved_transaction["transaction_type"] == "sell":
             print("✅ POST /books/sell транзакция найдена")
         else:
-            print(f"❌ Ошибка в books/sell: транзакция не найдена")
+            print("❌ Ошибка в books/sell: транзакция не найдена")
 
-        print(f"✅ POST /books/sell ручка исполнена")
+        print("✅ POST /books/sell ручка исполнена")
     except urllib.error.HTTPError as e:
         error_body = e.read().decode("utf-8")
         print(f"❌ Ошибка {e.code}: {e.reason}")
@@ -170,9 +160,7 @@ def test_get_book_by_id():
             assert book.get("book_name") == "Test"
             assert "book_name" in book
             print(f" id книги {book_id} книга называется {book['book_name']}")
-            print(
-                f"✅ GET /books_by_id Книга с id={book_id} найдена: {book['book_name']}"
-            )
+            print(f"✅ GET /books_by_id Книга с id={book_id} найдена: {book['book_name']}")
     except Exception as e:
         print(f"❌ Ошибка /books/book_id: {e}")
 
@@ -186,7 +174,7 @@ def test_books_list():
             books = json.loads(data)
             assert isinstance(books, list)
             assert len(books) >= 0
-            print(f"✅ GET /books возвращает список")
+            print("✅ GET /books возвращает список")
     except Exception as e:
         print(f"❌ Ошибка в /books: {e}")
 

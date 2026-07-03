@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import func
 
-from models import Book as BookModel
 from models import Author as AuthorModel
+from models import Book as BookModel
 from models import Transaction as TransactionModel
-
 from schemas import Book, BookSell, ProfitInfo
 
 
@@ -65,19 +64,13 @@ def delete_all_data(db: Session) -> dict:
 
 
 def buy_book(db: Session, book_data: Book) -> BookModel:
-    author = (
-        db.query(AuthorModel)
-        .filter(AuthorModel.author_name == book_data.author_name)
-        .first()
-    )
+    author = db.query(AuthorModel).filter(AuthorModel.author_name == book_data.author_name).first()
     if not author:
         author = AuthorModel(author_name=book_data.author_name)
         db.add(author)
         db.flush()
 
-    book = (
-        db.query(BookModel).filter(BookModel.book_name == book_data.book_name).first()
-    )
+    book = db.query(BookModel).filter(BookModel.book_name == book_data.book_name).first()
 
     if book:
         book.count += book_data.count
@@ -109,9 +102,7 @@ def buy_book(db: Session, book_data: Book) -> BookModel:
 
 
 def sell_book(db: Session, sell_data: BookSell) -> BookSell:
-    book = (
-        db.query(BookModel).filter(BookModel.book_name == sell_data.book_name).first()
-    )
+    book = db.query(BookModel).filter(BookModel.book_name == sell_data.book_name).first()
     if not book:
         raise ValueError(f"Книга '{sell_data.book_name}' не найдена")
     if book.count < sell_data.count:

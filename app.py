@@ -1,20 +1,18 @@
-from fastapi import FastAPI, HTTPException, Depends
-
-
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db, engine, Base
 
-from schemas import Book, BookSell, Author, BookOut
+from database import Base, engine, get_db
+from schemas import Author, Book, BookOut, BookSell
 from service import (
     buy_book,
-    sell_book,
+    delete_all_data,
     get_all_books,
+    get_authors_list,
     get_book_by_id,
     get_book_list,
     get_profit,
     get_transaction_list,
-    get_authors_list,
-    delete_all_data,
+    sell_book,
 )
 
 app = FastAPI(title="Book Store API")

@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, model_validator, ConfigDict
-
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Book(BaseModel):

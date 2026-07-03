@@ -3,3 +3,4 @@ uvicorn[standard]
 black
 fastapi
 sqlalchemy
+ruff
