@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 from typing import Optional
 
@@ -24,6 +24,20 @@ class Book(BaseModel):
 class BookSell(BaseModel):
     book_name: str = Field(min_length=1, max_length=200)
     count: int = Field(gt=0)
+
+
+class BookOut(BaseModel):
+    id: int
+    book_name: str
+    count: int
+    buy_price: int
+    sell_price: int
+    author_name: str
+    genre: str
+    language: str
+    year: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Transaction(BaseModel):

@@ -25,3 +25,7 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+#DB
+*.db
+library.db
