@@ -219,7 +219,7 @@ def test_profit():
             assert "expenses" in profit_data
             assert "profit" in profit_data
             print(
-                f"✅ GET /profit работает: revenue={profit_data['revenue']}, expenses={profit_data['expenses']}, profit={profit_data['profit']}"
+                f"✅ GET /profit работает: revenue={profit_data['revenue']}, expenses={profit_data['expenses']}, profit={profit_data['profit']}" #noqa: E501
             )
     except Exception as e:
         print(f"❌ Ошибка в GET /profit: {e}")
