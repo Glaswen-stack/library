@@ -1,15 +1,47 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
-name: First Workflow
+name: CI
 
-on: [ push ]
-
+on:
+  push:
+    branches:
+      - main
+      - 'stage_*'
+  pull_request:
+    branches:
+      - main
 jobs:
-  run-first-command:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Display some text
-        run: echo "Some text"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check with Ruff
+        run: ruff check .
+
+      - name: Check with Black
+        run: black --check .
+          
+
+          
+
+
+
+
+
+
+
 
 
 
